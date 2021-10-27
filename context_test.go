@@ -3,6 +3,7 @@ package learn_go_context
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"testing"
 )
 
@@ -38,5 +39,34 @@ func TestContextWithVal(t *testing.T) {
 	fmt.Println(contextF.Value("c"))
 	fmt.Println(contextF.Value("b"))
 	fmt.Println(contextA.Value("b"))
+
+}
+
+func CreateCounter() chan int {
+	dest := make(chan int)
+
+	go func() {
+		defer close(dest)
+		counter := 1
+		for {
+			dest <- counter
+			counter++
+		}
+	}()
+
+	return dest
+}
+
+func TestContextWithCan(t *testing.T) {
+	fmt.Println("Total Goroutine", runtime.NumGoroutine())
+	dest := CreateCounter()
+	for n := range dest {
+		fmt.Println("Counter", n)
+		if n == 10 {
+			break
+		}
+	}
+	// contextA := context.Background()
+	fmt.Println("Total Goroutine", runtime.NumGoroutine())
 
 }
